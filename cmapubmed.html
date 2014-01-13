@@ -204,8 +204,7 @@ var showHelp = function(index) {
 
 	function pmidSummary() {
 		var xmldoc = xmlHttp.responseXML.documentElement;
-		var docsums = xmldoc.getElementsByTagName("DocSum");
-		if (docsums == null) docsums = xmldoc.getElementsByTagName("docSum");
+		var docsums = xmldoc.getElementsByTagName(offline ? "DocSum" : "docsum");
 		$ID("reftext").value = "";
 		while ($ID("pmidsel").options.length > 0) {
 			$ID("pmidsel").remove(0);
@@ -230,18 +229,13 @@ var showHelp = function(index) {
 		var xmldoc = xmlHttp.responseXML.documentElement;
 		var count = 0;
 		try {
-			count = parseInt($T(xmldoc.getElementsByTagName("Count")[0]), 10);
+			count = parseInt($T(xmldoc.getElementsByTagName(offline ? "Count" : "count")[0]), 10);
 		} catch (e) {
-			try {
-				count = parseInt($T(xmldoc.getElementsByTagName("count")[0]), 10);
-			} catch (e) {
-			}
 		}
 		if (count == 0) {
 			alert("抱歉，没有找到，请修改题名中的关键字");
 		} else {
-			var ids = xmldoc.getElementsByTagName("Id");
-			if (ids == null) ids = xmldoc.getElementsByTagName("id");
+			var ids = xmldoc.getElementsByTagName(offline ? "Id" : "id");
 			var idlist = $T(ids[0]);
 			for (var i=1; i<ids.length; i++) {
 				idlist += "," + $T(ids[i]);
@@ -254,14 +248,12 @@ var showHelp = function(index) {
 		var reftext = "(无法解析)";
 		var pmid = null;
 		try {
-			var xmlnodeid = xmlnode.getElementsByTagName("Id");
-			if (xmlnodeid == null) xmlnodeid = xmlnode.getElementsByTagName("id");
+			var xmlnodeid = xmlnode.getElementsByTagName(offline ? "Id" : "id");
 			pmid = $T(xmlnodeid[0]);
 		} catch (e) {
 			pmid = $ID("pmid").value;
 		}
-		var items = xmlnode.getElementsByTagName("Item");
-		if (items == null) items = xmlnode.getElementsByTagName("item");
+		var items = xmlnode.getElementsByTagName(offline ? "Item" : "item");
 		var journal, year, vol, issue, page1, page2;
 		var title, auth;
 		try {
@@ -429,8 +421,7 @@ var showHelp = function(index) {
 	}
 
 	function $N(node) {
-		var n = node.getAttribute("Name");
-		if (n == null) n = node.getAttribute("name");
+		var n = node.getAttribute(offline ? "Name" : "name");
 		return n;
 	}
 
