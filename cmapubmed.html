@@ -1,0 +1,446 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+<!--<meta http-equiv="expires" content="-1" />-->
+    <title>中华医学会杂志社PubMed文献检索与格式化</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="css/sticky-footer-navbar.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <!-- Wrap all page content here -->
+    <div id="wrap">
+
+      <!-- Fixed navbar -->
+      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">中华医学会杂志社PubMed文献检索与格式化工具</a>
+          </div>
+          <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li><a href="#help" onclick="showHelp(0);">帮助</a></li>
+              <li><a href="#format" onclick="showHelp(1);">格式说明</a></li>
+              <li><a href="#tech" onclick="showHelp(2);">技术说明</a></li>
+              <li><a href="#about" onclick="showHelp(3);">关于</a></li>
+              <li><a href="cmapubmed.zip">离线版下载</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">常用链接<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="http://www.cma.org.cn/" target="_blank">中华医学会</a></li>
+                  <li><a href="http://www.medline.org.cn/" target="_blank">中华医学会杂志社</a></li>
+                  <li><a href="http://uip.cma.org.cn/main.do" target="_blank">杂志社远程稿件管理系统</a></li>
+                  <li><a href="http://zzsd.cma.org.cn/cma-zzsd/" target="_blank">中华医学会杂志审读系统</a></li>
+                  <li class="divider"></li>
+                  <!--<li class="dropdown-header">Nav header</li>-->
+                  <li><a href="http://www.ncbi.nlm.nih.gov/pubmed/" target="_blank">PubMed</a></li>
+                  <li><a href="http://med.wanfangdata.com.cn/" target="_blank">万方医学网</a></li>
+                  <li><a href="http://scholar.google.com/" target="_blank">谷歌学术搜索</a></li>
+                  <li><a href="http://academic.research.microsoft.com/" target="_blank">微软学术搜索</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+
+      <!-- Begin page content -->
+      <div class="container">
+
+        <!-- Main component for a primary marketing message or call to action -->
+        <div class="well" style="display:none" id="helpDiv">
+          <button type="button" class="close pull-right" aria-hidden="true" onclick="showHelp(-1);">&times;</button>
+          <span id="help0" style="display:none">
+            <h2>帮助</h2>
+            <p>您可以使用文章的PMID号检索相关的文章信息。如有多个号码，请用逗号分隔。输入完成后点击查询按钮或按回车进行查询。</p>
+            <p>您也可以使用文章题名内的任意关键词（如英文单词）检索，数目不限。检索结果的文章PMID号将会出现在PMID号检索框内。</p>
+            <p>全部检索结果将出现在文本框中，按照杂志社参考文献的格式依次列出。全选、复制到剪贴板后则可到其他软件中粘贴使用。</p>
+            <p>检索到结果后，可以逐个查看PubMed原始文章网页，即选择查看原始网页下拉列表的任一篇文章，其原始网页将自动出现在下方。</p>
+            <p>快捷键提示：【全选】Ctrl+A【复制】Ctrl+C【粘贴】Ctrl+V。</p>
+          </span>
+          <span id="help1" style="display:none">
+            <h2>格式说明</h2>
+            <p>结果格式为：作者. 题名. 期刊名, 年, 卷(期): 起始页-结束页</p>
+            <p>【作者】按照PubMed格式，即姓在前、名在后，姓取完整拼写，名取各字首字母。作者若超过三人，则只列前三人并在之后加et al。</p>
+            <p>【题名】按照PubMed格式。如果该文献非英文文献，题名两侧有方括号括起。</p>
+            <p>【期刊名】期刊名按照PubMed格式，通常用简写（如Journal简写为J）。</p>
+            <p>【卷(期): 起始页-结束页】卷和页码不一定有。只有当该期为增刊或合刊时，卷后附期数。页码的终止页长度补齐（如123-45表示123-145）。</p>
+          </span>
+          <span id="help2" style="display:none">
+            <h2>技术说明</h2>
+            <p>本工具采用最先进的HTML5、CSS3与AJAX异步交互技术，无需安装，只需浏览器即可使用。</p>
+            <p>工具的基本原理是从本地发送HTTP网络请求，利用PubMed的数据查询API接口，获取与PMID（或关键词）对应的结果信息，并按照特定规则，规范化成为所需格式。</p>
+            <p>PubMed的API使用方式参考自http://www.ncbi.nlm.nih.gov/books/NBK25500/。</p>
+            <p>本工具可在Windows、Linux、Mac等多种平台使用，支持移动设备（手机、平板电脑）访问，界面友好易用。</p>
+            <p>支持Firefox (版本26)、Google Chrome (v32)、搜狗（高速模式）等浏览器。</p>
+          </span>
+          <span id="help3" style="display:none">
+            <h2>关于</h2>
+            <p>中华医学会杂志社PubMed文献检索与格式化工具</p>
+            <p>版本：<span id="version"></span></p>
+            <p>作者：@Starzh，@CAQ9</p>
+            <p>意见反馈：caq@caq9.info</p>
+          </span>
+        </div>
+
+        <form role="form" name="formSearchByPMID" action="javascript:handleQuery(this.pmid.value);">
+          <div class="form-group">
+            <label for="pmid">使用PMID号检索原始文章信息</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="pmid" name="pmid" placeholder="请输入PMID号，多个号码之间用逗号分隔">
+            </div>
+            <div class="col-sm-2">
+              <button type="submit" class="btn btn-default">查询</button>
+              <button type="reset" class="btn btn-default">清空</button>
+            </div>
+          </div>
+        </form>
+
+        <form role="form" name="formSearchByText" action="javascript:handleSearch(this.title.value);">
+          <div class="form-group">
+            <label for="title">使用文章题名关键词检索PMID号</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="title" name="title" placeholder="请输入文章题名中的词语">
+            </div>
+            <div class="col-sm-2">
+              <button type="submit" class="btn btn-default">查询</button>
+              <button type="reset" class="btn btn-default">清空</button>
+            </div>
+          </div>
+        </form>
+
+        <form role="form" action="javascript:return false;">
+          <div class="form-group>">
+            <label for="reftext">全部检索结果（以杂志社参考文献格式列出）</label>
+            <input type="button" class="btn btn-default" value="全选" onclick="javascript:$ID('reftext').focus();$ID('reftext').select();"/><br/>
+            <textarea class="form-control" rows="5" id="reftext"></textarea>
+          </div>
+        </form>
+
+        <form role="form" action="javascript:return false;">
+          <div class="form-group>">
+            <label for="pmidsel">查看原始网页</label>
+            <select class="form-control" id="pmidsel" onchange="javascript:changeifr();"></select>
+          </div>
+        </form>
+        <div id="pubmedpage">
+        </div>
+
+      </div> <!-- container -->
+
+    </div> <!-- wrap -->
+
+    <div id="footer">
+      <div class="container">
+        <p class="text-muted">运行状态：<span id="status">就绪</span></p>
+      </div>
+    </div>
+
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+
+
+
+
+<script type="text/javascript">
+
+var showHelp = function(index) {
+  if (index < 0) {
+    $ID("helpDiv").style.display = "none";
+    return;
+  }
+  $ID("helpDiv").style.display = "block";
+  for (var i = 0; i <= 3; i++) {
+    if (i == index) {
+      $ID("help" + i).style.display = "block";
+    } else {
+      $ID("help" + i).style.display = "none";
+    }
+  }
+};
+
+
+	var xmlHttp;
+	function getXmlHttpObject() {
+		xmlHttp = null;
+		try { // Firefox, Opera 8.0+, Safari
+			xmlHttp = new XMLHttpRequest();
+		} catch (e) { // Internet Explorer
+			try {
+				xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
+			} catch (e) {
+				try {
+					xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+				} catch (e) {
+					alert("您的浏览器不支持AJAX！");
+				}
+			}
+		}
+		return xmlHttp;
+	}
+
+	function pmidSummary() {
+		var xmldoc = xmlHttp.responseXML.documentElement;
+		var docsums = xmldoc.getElementsByTagName("DocSum");
+		if (docsums == null) docsums = xmldoc.getElementsByTagName("docSum");
+		$ID("reftext").value = "";
+		while ($ID("pmidsel").options.length > 0) {
+			$ID("pmidsel").remove(0);
+		}
+		for (var i=0; i<docsums.length; i++) {
+			$ID("status").innerHTML = "解析文本(" + (i+1) + ")";
+			var thisref = parseXml(docsums[i]);
+			$ID("reftext").value += thisref.reftext + (i<docsums.length-1?"\r\n":"");
+			var opt = document.createElement('option');
+			opt.value = thisref.pmid;
+			opt.text = thisref.pmid + " (" + thisref.reftext.substring(0, thisref.reftext.indexOf(".")) + ")";
+			try {
+				$ID("pmidsel").add(opt, null);
+			} catch (e) {
+				$ID("pmidsel").add(opt);
+			}
+		}
+		changeifr();
+	}
+
+	function titleSearch() {
+		var xmldoc = xmlHttp.responseXML.documentElement;
+		var count = 0;
+		try {
+			count = parseInt($T(xmldoc.getElementsByTagName("Count")[0]), 10);
+		} catch (e) {
+			try {
+				count = parseInt($T(xmldoc.getElementsByTagName("count")[0]), 10);
+			} catch (e) {
+			}
+		}
+		if (count == 0) {
+			alert("抱歉，没有找到，请修改题名中的关键字");
+		} else {
+			var ids = xmldoc.getElementsByTagName("Id");
+			if (ids == null) ids = xmldoc.getElementsByTagName("id");
+			var idlist = $T(ids[0]);
+			for (var i=1; i<ids.length; i++) {
+				idlist += "," + $T(ids[i]);
+			}
+			$ID("pmid").value = idlist;
+		}
+	}
+
+	function parseXml(xmlnode) {
+		var reftext = "(无法解析)";
+		var pmid = null;
+		try {
+			var xmlnodeid = xmlnode.getElementsByTagName("Id");
+			if (xmlnodeid == null) xmlnodeid = xmlnode.getElementsByTagName("id");
+			pmid = $T(xmlnodeid[0]);
+		} catch (e) {
+			pmid = $ID("pmid").value;
+		}
+		var items = xmlnode.getElementsByTagName("Item");
+		if (items == null) items = xmlnode.getElementsByTagName("item");
+		var journal, year, vol, issue, page1, page2;
+		var title, auth;
+		try {
+			for (var i=0; i<items.length; i++) {
+				var itemname = $N(items[i]);
+				if (itemname == "Source") {
+					journal = $T(items[i]);
+				} else if (itemname == "PubDate") {
+					var pubdate = $T(items[i]);
+					var yearend = pubdate.indexOf(" ");
+					if (yearend < 0) {
+						yearend = pubdate.length;
+					}
+					year = pubdate.substring(0, yearend);
+				} else if (itemname == "Volume") {
+					vol = $T(items[i]);
+				} else if (itemname == "Issue") {
+					issue = $T(items[i]);
+				} else if (itemname == "Pages") {
+					var pages = $T(items[i]);
+					page1 = pages.substring(0, pages.indexOf('-'));
+					page2 = pages.substring(pages.indexOf('-') + 1);
+					if (page2.length < page1.length) {
+						page2 = page1.substring(0, page1.length-page2.length) + page2;
+					}
+				} else if (itemname == "Title") {
+					title = $T(items[i]);
+				} else if (itemname == "AuthorList") {
+					var authlist = items[i].childNodes;
+					var authcount = 0;
+					auth = "";
+					for (var j=0; j<authlist.length; j++) {
+						var au = trim($T(authlist[j]));
+						if (au.length > 0) {
+							if (authcount < 3) {
+								auth += au + ", ";
+							}
+							authcount++;
+						}
+					}
+					if (authcount > 3) {
+						auth += "et al";
+					} else {
+						auth = auth.substring(0, auth.length - 2);
+					}
+					auth += ".";
+				}
+			}
+			if (issue && !/^[0-9]+$/.test(issue)) {
+				vol = vol + "(" + issue + ")";
+			}
+			if (journal && year) {
+				reftext = journal + ", " + year;
+				if (vol) {
+					reftext += ", " + vol;
+				} else if (issue) {
+					reftext += ", " + "("+issue+")";
+				}
+				if (pages) {
+					reftext += ": " + page1 + (page1.length>0?"-":"") + page2;
+				}
+				reftext += ".";
+			} else {
+				reftext = "[期刊名, 年, 卷: 页码].";
+			}
+			if (title) {
+				if (title.substr(title.length - 1) != ".") {
+					title += ".";
+				}
+				reftext = title + " " + reftext;
+			} else {
+				reftext = "[题名]. " + reftext;
+			}
+			if (auth) {
+				reftext = auth + " " + reftext;
+			} else {
+				reftext = "[作者]. " + reftext;
+			}
+		} catch(e) {
+		}
+		return {"reftext": reftext, "pmid": pmid};
+		$ID("reftext").innerHTML = reftext;
+	}
+
+/*
+0 	请求未初始化（在调用 open() 之前）
+1 	请求已提出（调用 send() 之前）
+2 	请求已发送（这里通常可以从响应得到内容头部）
+3 	请求处理中（响应中通常有部分数据可用，但是服务器还没有完成响应）
+4 	请求已完成（可以访问服务器响应并使用它）
+*/
+	function ajaxQuery(url, statechangefunc) {
+		xmlHttp = getXmlHttpObject();
+		if (xmlHttp == null) return;
+		xmlHttp.onreadystatechange = function() {
+			switch (xmlHttp.readyState) {
+			case 1:
+				$ID("status").innerHTML = "请求已提出";
+				break;
+			case 2:
+				$ID("status").innerHTML = "请求已发送";
+				break;
+			case 3:
+				$ID("status").innerHTML = "请求处理中";
+				break;
+			case 4:
+				if (xmlHttp.status == 200) {
+					statechangefunc();
+					$ID("status").innerHTML = "就绪";
+				} else {
+					$ID("status").innerHTML = "发生了错误：" + xmlHttp.status;
+				}
+				break;
+			}
+		};
+		xmlHttp.open("GET", url + "&sid=" + Math.random(), true);
+		xmlHttp.send(null);
+	}
+
+	function handleQuery(id) {
+		id = trim(id).replace(/\s/g, "").replace(/，/g, ",");
+		if (!/^[0-9,]+$/.test(id)) {
+			alert("请输入合法的PMID");
+			return;
+		}
+		sendAjaxQuery('esummary', 'db=pubmed&id=' + id + '&retmode=xml', pmidSummary);
+	}
+
+	function handleSearch(title) {
+		var trimtitle = title.replace(/^[^a-zA-Z0-9\-]+|[^a-zA-Z0-9\-]+$/g, "");
+		var reptitle;
+		if (trimtitle.length > 0) {
+			reptitle = trimtitle.replace(/[^a-zA-Z0-9\-]+/g, " ");
+		}
+		if (!reptitle || reptitle.length < 1) {
+			alert("请输入合法的文章题名，至少包含一个字母/数字/连字符");
+			return;
+		}
+		sendAjaxQuery('esearch', 'db=pubmed&term=' + encodeURIComponent(reptitle) + '&retmax=10', titleSearch);
+	}
+
+	function changeifr() {
+		var pubmedlink = "http://www.ncbi.nlm.nih.gov/pubmed/" + $ID("pmidsel").value;
+		$ID("pubmedpage").innerHTML = "<iframe src='" + pubmedlink + "' style='width:100%;height:200px'></iframe>";
+	}
+
+	function trim(text) {
+		return text.replace(/^\s+|\s+$/g, "");
+	}
+
+	function $ID(id) {
+		return document.getElementById(id);
+	}
+
+	function $T(node) {
+		if (node.innerText != null) {
+			return node.innerText;
+		} else if (node.text != null) {
+			return node.text;
+		} else if (node.textContent != null) {
+			return node.textContent;
+		} else {
+			return node.nodeValue;
+		}
+	}
+
+	function $N(node) {
+		var n = node.getAttribute("Name");
+		if (n == null) n = node.getAttribute("name");
+		return n;
+	}
+
+</script>
+
+    <script src="js/common.js"></script>
+
+<script type="text/javascript">
+$ID("version").innerHTML = versionINFO;
+</script>
+
+  </body>
+</html>

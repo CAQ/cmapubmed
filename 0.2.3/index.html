@@ -1,0 +1,320 @@
+﻿<html>
+<head>
+<meta http-equiv=content-type content="text/html; charset=UTF-8" />
+<meta http-equiv="expires" content="-1" />
+<title>PubMed文献检索与格式化</title>
+<script type="text/javascript">
+	var xmlHttp;
+	function getXmlHttpObject() {
+		xmlHttp = null;
+		try { // Firefox, Opera 8.0+, Safari
+			xmlHttp = new XMLHttpRequest();
+		} catch (e) { // Internet Explorer
+			try {
+				xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
+			} catch (e) {
+				try {
+					xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+				} catch (e) {
+					alert("您的浏览器不支持AJAX！");
+				}
+			}
+		}
+		return xmlHttp;
+	}
+
+	function pmidSummary() {
+		var xmldoc = xmlHttp.responseXML.documentElement;
+		var docsums = xmldoc.getElementsByTagName("docsum");
+		$("reftext").value = "";
+		while ($("pmidsel").options.length > 0) {
+			$("pmidsel").remove(0);
+		}
+		for (var i=0; i<docsums.length; i++) {
+			$("status").innerHTML = "解析文本(" + (i+1) + ")";
+			var thisref = parseXml(docsums[i]);
+			$("reftext").value += thisref.reftext + (i<docsums.length-1?"\r\n":"");
+			var opt = document.createElement('option');
+			opt.value = thisref.pmid;
+			opt.text = thisref.pmid + " (" + thisref.reftext.substring(0, thisref.reftext.indexOf(".")) + ")";
+			try {
+				$("pmidsel").add(opt, null);
+			} catch (e) {
+				$("pmidsel").add(opt);
+			}
+		}
+		changeifr();
+	}
+
+	function titleSearch() {
+		var xmldoc = xmlHttp.responseXML.documentElement;
+		var count = 0;
+		try {
+			count = parseInt($T(xmldoc.getElementsByTagName("count")[0]), 10);
+		} catch (e) {
+		}
+		if (count == 0) {
+			alert("抱歉，没有找到，请修改题名中的关键字");
+		} else {
+			var ids = xmldoc.getElementsByTagName("id");
+			var idlist = $T(ids[0]);
+			for (var i=1; i<ids.length; i++) {
+				idlist += "," + $T(ids[i]);
+			}
+			$("pmid").value = idlist;
+		}
+	}
+
+	function parseXml(xmlnode) {
+		var reftext = "(无法解析)";
+		var pmid = null;
+		try {
+			pmid = $T(xmlnode.getElementsByTagName("id")[0]);
+		} catch (e) {
+			pmid = $("pmid").value;
+		}
+		var items = xmlnode.getElementsByTagName("item");
+		var journal, year, vol, issue, page1, page2;
+		var title, auth;
+		try {
+			for (var i=0; i<items.length; i++) {
+				var itemname = $N(items[i]);
+				if (itemname == "Source") {
+					journal = $T(items[i]);
+				} else if (itemname == "PubDate") {
+					var pubdate = $T(items[i]);
+					var yearend = pubdate.indexOf(" ");
+					if (yearend < 0) {
+						yearend = pubdate.length;
+					}
+					year = pubdate.substring(0, yearend);
+				} else if (itemname == "Volume") {
+					vol = $T(items[i]);
+				} else if (itemname == "Issue") {
+					issue = $T(items[i]);
+				} else if (itemname == "Pages") {
+					var pages = $T(items[i]);
+					page1 = pages.substring(0, pages.indexOf('-'));
+					page2 = pages.substring(pages.indexOf('-') + 1);
+					if (page2.length < page1.length) {
+						page2 = page1.substring(0, page1.length-page2.length) + page2;
+					}
+				} else if (itemname == "Title") {
+					title = $T(items[i]);
+				} else if (itemname == "AuthorList") {
+					var authlist = items[i].childNodes;
+					var authcount = 0;
+					auth = "";
+					for (var j=0; j<authlist.length; j++) {
+						var au = trim($T(authlist[j]));
+						if (au.length > 0) {
+							if (authcount < 3) {
+								auth += au + ", ";
+							}
+							authcount++;
+						}
+					}
+					if (authcount > 3) {
+						auth += "et al";
+					} else {
+						auth = auth.substring(0, auth.length - 2);
+					}
+					auth += ".";
+				}
+			}
+			if (issue && !/^[0-9]+$/.test(issue)) {
+				vol = vol + "(" + issue + ")";
+			}
+			if (journal && year) {
+				reftext = journal + ", " + year;
+				if (vol) {
+					reftext += ", " + vol;
+				} else if (issue) {
+					reftext += ", " + "("+issue+")";
+				}
+				if (pages) {
+					reftext += ": " + page1 + (page1.length>0?"-":"") + page2;
+				}
+				reftext += ".";
+			} else {
+				reftext = "[期刊名, 年, 卷: 页码].";
+			}
+			if (title) {
+				if (title.substr(title.length - 1) != ".") {
+					title += ".";
+				}
+				reftext = title + " " + reftext;
+			} else {
+				reftext = "[题名]. " + reftext;
+			}
+			if (auth) {
+				reftext = auth + " " + reftext;
+			} else {
+				reftext = "[作者]. " + reftext;
+			}
+		} catch(e) {
+		}
+		return {"reftext": reftext, "pmid": pmid};
+		$("reftext").innerHTML = reftext;
+	}
+
+/*
+0 	请求未初始化（在调用 open() 之前）
+1 	请求已提出（调用 send() 之前）
+2 	请求已发送（这里通常可以从响应得到内容头部）
+3 	请求处理中（响应中通常有部分数据可用，但是服务器还没有完成响应）
+4 	请求已完成（可以访问服务器响应并使用它）
+*/
+	function ajaxQuery(url, statechangefunc) {
+		xmlHttp = getXmlHttpObject();
+		if (xmlHttp == null) return;
+		xmlHttp.onreadystatechange = function() {
+			switch (xmlHttp.readyState) {
+			case 1:
+				$("status").innerHTML = "请求已提出";
+				break;
+			case 2:
+				$("status").innerHTML = "请求已发送";
+				break;
+			case 3:
+				$("status").innerHTML = "请求处理中";
+				break;
+			case 4:
+				if (xmlHttp.status == 200) {
+					statechangefunc();
+					$("status").innerHTML = "就绪";
+				} else {
+					$("status").innerHTML = "发生了错误：" + xmlHttp.status;
+				}
+				break;
+			}
+		};
+		xmlHttp.open("GET", url + "&sid=" + Math.random(), true);
+		xmlHttp.send(null);
+	}
+
+	function handleQuery(id) {
+		id = trim(id).replace(/\s/g, "");
+		if (!/^[0-9,]+$/.test(id)) {
+			alert("请输入合法的PMID");
+			return;
+		}
+//		ajaxQuery('http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=' + id + '&retmode=xml', pmidSummary);
+		ajaxQuery('getxml.php?pagename=esummary&id=' + id, pmidSummary);
+	}
+
+	function handleSearch(title) {
+		var trimtitle = title.replace(/^[^a-zA-Z0-9\-]+|[^a-zA-Z0-9\-]+$/g, "");
+		var reptitle;
+		if (trimtitle.length > 0) {
+			reptitle = trimtitle.replace(/[^a-zA-Z0-9\-]+/g, " ");
+		}
+		if (!reptitle || reptitle.length < 1) {
+			alert("请输入合法的文章题名，至少包含一个字母/数字/连字符");
+			return;
+		}
+//		ajaxQuery('http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=' + encodeURIComponent(reptitle) + '&retmax=10', titleSearch);
+		ajaxQuery('getxml.php?pagename=esearch&term=' + encodeURIComponent(reptitle) + '&retmax=10', titleSearch);
+	}
+
+	function changeifr() {
+		var pubmedlink = "http://www.ncbi.nlm.nih.gov/pubmed/" + $("pmidsel").value;
+		$("pubmedpage").innerHTML = "<iframe src='" + pubmedlink + "' style='width:800px;height:200px'></iframe>";
+	}
+
+	function trim(text) {
+		return text.replace(/^\s+|\s+$/g, "");
+	}
+
+	function $(id) {
+		return document.getElementById(id);
+	}
+
+	function $T(node) {
+		if (node.innerText != null) {
+			return node.innerText;
+		} else if (node.text != null) {
+			return node.text;
+		} else if (node.textContent != null) {
+			return node.textContent;
+		} else {
+			return node.nodeValue;
+		}
+	}
+
+	function $N(node) {
+		return node.getAttribute("name");
+	}
+
+	function showRules() {
+		$("rules").innerHTML = "格式化规则:<br/ >1. [作者]: 严格按照PubMed格式，超过三位则只列前三位并在之后加et al<br/ >2. [题名]: 严格按照PubMed格式，若非句号结束则补充句号<br/ >3. [期刊名, 年, 卷: 页码]: 期刊名和年严格按照PubMed格式；卷和页码不一定有；当该期为增刊或合刊则卷后附期数；页码的终止页长度补齐"
+	}
+</script>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-28888073-2']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</head>
+<body>
+<table border="0" width="100%"><tr>
+<td valign="top">
+<form onsubmit="javascript:handleQuery(this.pmid.value);return false;">
+PMID号(多个请用逗号分隔): <input type="text" id="pmid" value="" style="width:200px"/>
+<input type="submit" value="查询"/>
+<input type="reset" value="清空"/>
+</form>
+</td>
+<td valign="top" align="right">
+常用链接:
+<a href="http://www.ncbi.nlm.nih.gov/pubmed/" target="_blank">PubMed</a>
+<a href="http://med.wanfangdata.com.cn/" target="_blank">万方医学网</a>
+<a href="http://scholar.google.com/" target="_blank">Google学术搜索</a>
+</td>
+</tr>
+<tr><td colspan="2">
+<form onsubmit="javascript:handleSearch(this.title.value);return false;">
+或搜索文章题名: 
+<input type="text" id="title" style="width:300px"/>
+<input type="submit" value="查询"/>
+<input type="reset" value="清空"/>
+</form>
+<p>参考文献格式
+<input type="button" value="全选" onclick="javascript:$('reftext').focus();$('reftext').select();"/><br/>
+<textarea style="width:800px;height:100px" id="reftext"></textarea>
+</p>
+<p>原始网页：<select id="pmidsel" onchange="javascript:changeifr();"></select>
+<div id="pubmedpage">
+</div>
+</p>
+<hr/>
+状态：<span id="status">就绪</span>
+<hr/>
+<b>PubMed文献检索与格式化工具</b> v0.2.3(在线版)<br/>
+意见反馈：<a href="mailto:caq@net9.org">caq@net9.org</a><br/>
+技术参考：http://eutils.ncbi.nlm.nih.gov/entrez/query/static/eutils_help.html<br/>
+支持IE、Firefox、Chrome、搜狗(Webkit内核)等浏览器。你可以尝试<a href="wenxian.html">离线版</a>（请右键点此链接选另存为），下载网页到本地使用。<br/>
+<div id="rules">
+<a href="javascript:showRules();">查看规则说明</a>
+</div>
+</tr></table>
+<hr/>
+快捷键小技巧：
+<ul>
+<li>Ctrl + A: 全选</li>
+<li>Ctrl + C: 复制</li>
+<li>Ctrl + V: 粘贴</li>
+<li>在文本框中直接按回车，相当于点击“查询”按钮</li>
+</ul>
+</body>
+</html>
